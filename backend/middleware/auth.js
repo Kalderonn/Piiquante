@@ -13,15 +13,16 @@ module.exports = (req, res, next) => {
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
     const userId = decodedToken.userId;
-    // req.auth = { userId };
+    // Dans notre middleware d'authentification, nous ajoutons un objet  auth  à l'objet de requête qui contient le  userId  extrait du token :
+    req.auth = { userId };
     if (req.body.userId && req.body.userId !== userId) {
       throw "L'indentifiant de l'utilisateur est invalide";
     } else {
       next();
     }
-  } catch (error) {
+  } catch {
     res.status(401).json({
-      error: new Error("Requête non authentifiée !"),
+      error: "Requête non authentifiée !",
     });
   }
 };

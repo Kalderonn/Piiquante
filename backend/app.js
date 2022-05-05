@@ -1,6 +1,10 @@
+// import du framwork express
 const express = require("express");
 // import de moongoose: est un package qui facilite les interactions avec notre base de données MongoDB.
 const mongoose = require("mongoose");
+// import du package dotenv
+const dotenv = require('dotenv');
+const result = dotenv.config();
 // import pour accéder au path de notre serveur
 const path = require("path");
 
@@ -10,14 +14,14 @@ const saucesRoutes = require("./routes/sauces");
 // import du router users
 const usersRoutes = require("./routes/users");
 
-mongoose
-  .connect(
-    "mongodb+srv://Mikael:12345678Me@cluster0.k935t.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+mongoose.connect(
+    `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.k935t.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 
+// création de l'application express
 const app = express();
 
 //  middleware mis à disposition par le framework Express pour gérer la requête POST venant du front et permettre d'extraire le corps JSON
@@ -47,4 +51,5 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.use("/api/sauces", saucesRoutes);
 app.use("/api/auth", usersRoutes);
 
+// exportation de app pour y accéder depuis un autre fichier
 module.exports = app;

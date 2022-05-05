@@ -1,5 +1,5 @@
 const Sauce = require("../models/Sauce");
-const fs = require('fs');
+const fs = require("fs");
 
 // créez une instance de votre modèle Sauce en lui passant un objet JavaScript contenant toutes les informations requises du corps de requête analysé
 // (en ayant supprimé en amont le faux_id envoyé par le front-end).
@@ -24,7 +24,7 @@ exports.createSauce = (req, res, next) => {
   // Dans notre bloc catch(),nous renverrons une réponse avec l'erreur générée par Mongoose ainsi qu'un code d'erreur 400.
   sauce
     .save()
-    .then(() => res.status(201).json({ message: "Sauce enregistrée enregistré !" }))
+    .then(() => res.status(201).json({ message: "Sauce enregistrée !" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
@@ -32,15 +32,22 @@ exports.createSauce = (req, res, next) => {
 // S'il existe, on traite la nouvelle image ; s'il n'existe pas, on traite simplement l'objet entrant.
 // On crée ensuite une instance Sauce à partir de sauceObject , puis on effectue la modification.
 exports.modifySauce = (req, res, next) => {
-  const sauceObject = req.file ?
-    {
-      ...JSON.parse(req.body.sauce),
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    } : { ...req.body };
+  const sauceObject = req.file
+    ? {
+        ...JSON.parse(req.body.sauce),
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${
+          req.file.filename
+        }`,
+      }
+    : { ...req.body };
+
   // nous exploitons la méthode updateOne() dans notre modèle Sauce .
   // Cela nous permet de mettre à jour le Sauce qui correspond à l'objet que nous passons comme premier argument.
   // Nous utilisons aussi le paramètre id passé dans la demande, et le remplaçons par le Sauce passé comme second argument.
-  Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
+  Sauce.updateOne(
+    { _id: req.params.id },
+    { ...sauceObject, _id: req.params.id }
+  )
     .then(() => res.status(200).json({ message: "Sauce modifiée !" }))
     .catch((error) => res.status(400).json({ error }));
 };
@@ -56,12 +63,18 @@ exports.modifySauce = (req, res, next) => {
 exports.deleteSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
-      const filename = sauce.imageUrl.split("/images/")[1];
-      fs.unlink(`images/${filename}`, () => {
-        Sauce.deleteOne({ _id: req.params.id })
-          .then(() => res.status(200).json({ message: "Sauce supprimée !" }))
-          .catch((error) => res.status(400).json({ error }));
-      });
+      if (sauce.userId !== req.auth.userId) {
+        res
+          .status(401)
+          .json({ message: "seul le créateur de la sauce peut l'effacer" });
+      } else {
+        const filename = sauce.imageUrl.split("/images/")[1];
+        fs.unlink(`images/${filename}`, () => {
+          Sauce.deleteOne({ _id: req.params.id })
+            .then(() => res.status(200).json({ message: "Sauce supprimée !" }))
+            .catch((error) => res.status(400).json({ error }));
+        });
+      }
     })
     .catch((error) => res.status(500).json({ error }));
 };
@@ -83,4 +96,38 @@ exports.getAllSauces = (req, res, next) => {
   Sauce.find()
     .then((sauces) => res.status(200).json(sauces))
     .catch((error) => res.status(400).json({ error }));
+};
+
+exports.likeSauce = (req, res, next) => {
+  const like = req.body.like;
+  const userId = req.body.userId
+
+  Sauce.findOne({_id: req.params.id})
+  .then((sauce) => {
+
+    if (like === 1 && (sauce.usersLiked.includes(userId) != true)) {
+        sauce.usersLiked.push(userId)
+        sauce.likes += 1
+    } else if (like === 0 && sauce.usersLiked.includes(userId)) {
+        sauce.usersLiked.remove(userId)
+        sauce.likes -= 1
+    } else if (like === -1 && (sauce.usersDisliked.includes(userId) != true)) {
+        sauce.usersDisliked.push(userId)
+        sauce.dislikes += 1
+    } else if (like === 0 && sauce.usersDisliked.includes(userId)) {
+        sauce.usersDisliked.remove(userId)
+        sauce.dislikes -= 1
+    }
+    console.log(req.body)
+    console.log(`userdislike: ${sauce.usersDisliked}`)
+    console.log(`userlike: ${sauce.usersLiked}`)
+
+    sauce
+    .save()
+    .then(() => {
+      res.status(200).json({message: "Like mis à jour!"});
+    })
+    .catch((error) => res.status(400).json(error));
+  })
+  .catch((error) => res.status(500).json(error));
 };
