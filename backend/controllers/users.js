@@ -1,5 +1,11 @@
+// importation de bcrypt pour hasher le password
 const bcrypt = require("bcrypt");
+// importation de crypto-js pour chiffrer le mail
+const cryptojs = require('crypto-js');
+// importation de dotenv pour l'utilisation des variables d'environnements
+// const dotenv = require("dotenv").config();
 
+// importation de jsonwebtoken pour l'autorisation
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/User");
@@ -10,11 +16,14 @@ const User = require("../models/User");
 // en renvoyant une réponse de réussite en cas de succès,
 // et des erreurs avec le code d'erreur en cas d'échec.
 exports.signup = (req, res, next) => {
+  // chiffrer l'email avant de l'envoyer dans la base BD
+  const emailCryptoJs = cryptojs.HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`).toString();
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
+      // ce qui va etre enregistré dans mongoDB
       const user = new User({
-        email: req.body.email,
+        email: emailCryptoJs,
         password: hash,
       });
       user

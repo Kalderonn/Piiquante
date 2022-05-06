@@ -1,10 +1,9 @@
-// import du framwork express
+// import du framework express
 const express = require("express");
 // import de moongoose: est un package qui facilite les interactions avec notre base de données MongoDB.
 const mongoose = require("mongoose");
 // import du package dotenv
-const dotenv = require('dotenv');
-const result = dotenv.config();
+const dotenv = require('dotenv').config();
 // import pour accéder au path de notre serveur
 const path = require("path");
 
@@ -15,7 +14,7 @@ const saucesRoutes = require("./routes/sauces");
 const usersRoutes = require("./routes/users");
 
 mongoose.connect(
-    `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.k935t.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
+    `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
