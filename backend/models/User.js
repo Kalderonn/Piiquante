@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 // package mangoose-unique-validator pour prévalider les informations avant de les enregistrer
+// pour ne pas enregistrer 2 fois le meme mail dans la BD
 const uniqueValidator = require('mongoose-unique-validator');
 
 // Pour s'assurer que deux utilisateurs ne puissent pas utiliser la même adresse e-mail, 

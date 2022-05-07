@@ -46,7 +46,9 @@ exports.signup = (req, res, next) => {
 // nous définissons la durée de validité du token à 24 heures
 // nous renvoyons le token au front-end avec notre réponse
 exports.login = (req, res, next) => {
-  User.findOne({ email: req.body.email })
+  // chiffrer l'email de la requete
+  const emailCryptoJs = cryptojs.HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`).toString();
+  User.findOne({ email: emailCryptoJs })
     .then((user) => {
       if (!user) {
         return res.status(401).json({ error: "Utilisateur non trouvé !" });

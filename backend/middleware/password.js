@@ -20,8 +20,5 @@ module.exports = (req, res, next) => {
         next();
     } else {
         res.status(400).json({error : "le mot de passe doit contenir minimum 8 caractères, 1 majuscule et 1 chiffre"});
-        // res.status(400).json({error : `le mot de passe n'est pas assez fort ${passwordSchema.validate(req.body.password, { list: true })}`});
-        // res.status(400).json(passwordSchema.validate(req.body.password, { details: true }));
-        // res.status(400).json({ error: `${passwordSchema.validate(req.body.password, { details: true })}`} );
     }
 }
