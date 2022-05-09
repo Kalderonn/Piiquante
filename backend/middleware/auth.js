@@ -11,7 +11,7 @@ const jwt = require("jsonwebtoken");
 module.exports = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+    const decodedToken = jwt.verify(token, `${process.env.JWT_KEY_TOKEN}`);
     const userId = decodedToken.userId;
     // Dans notre middleware d'authentification, nous ajoutons un objet  auth  à l'objet de requête qui contient le  userId  extrait du token :
     req.auth = { userId };
