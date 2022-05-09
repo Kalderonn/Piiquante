@@ -6,6 +6,8 @@ const mongoose = require("mongoose");
 const dotenv = require('dotenv').config();
 // import pour accéder au path de notre serveur
 const path = require("path");
+// import d'helmet
+const helmet = require("helmet");
 
 // import du router sauces
 const saucesRoutes = require("./routes/sauces");
@@ -23,6 +25,10 @@ mongoose.connect(
 // création de l'application express
 const app = express();
 
+app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+}));
 //  middleware mis à disposition par le framework Express pour gérer la requête POST venant du front et permettre d'extraire le corps JSON
 // Avec ceci, Express prend toutes les requêtes qui ont comme Content-Type  application/json  et met à disposition leur  body  directement sur l'objet req
 app.use(express.json());
