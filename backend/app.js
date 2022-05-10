@@ -15,6 +15,7 @@ const saucesRoutes = require("./routes/sauces");
 // import des routes users
 const usersRoutes = require("./routes/users");
 
+//connection à la BD mongoDB grace à mangoose et la méthode connect()
 mongoose.connect(
     `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
@@ -36,9 +37,10 @@ app.use(helmet({
  */
 app.use(express.json());
 
-// middleware appliqué à toutes les requetes grace à "app.use()"
+// middleware appliqué à toutes les requetes grace à "app.use()" du framework express
 app.use((req, res, next) => {
   // Ces headers permettent :  d'accéder à notre API depuis n'importe quelle origine ( '*' ) ;
+  // setHeader() : méthode node.js
   res.setHeader("Access-Control-Allow-Origin", "*");
   // d'autoriser l'ajout des headers mentionnés aux requêtes envoyées vers notre API
   res.setHeader(
