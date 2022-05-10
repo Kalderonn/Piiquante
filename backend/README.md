@@ -1,4 +1,4 @@
-# Piiqante Backend
+# HotTakes Backend
 Mettre les variables d'environnement
 
 Pour démarrer le server : npm start
