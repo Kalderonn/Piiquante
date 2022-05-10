@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 
-// nous créons un schéma de données qui contient les champs souhaités pour chaque sauce,
-//  indique leur type ainsi que leur caractère (obligatoire ou non). 
-// Pour cela, on utilise la méthode Schema mise à disposition par Mongoose permet de créer un schéma de données pour notre base de données MongoDB.. 
-// Pas besoin de mettre un champ pour l'Id puisqu'il est automatiquement généré par Mongoose ;
+/**
+ * nous créons un schéma de données qui contient les champs souhaités pour chaque sauce,
+ * indique leur type ainsi que leur caractère (obligatoire ou non). 
+ * Pour cela, on utilise la méthode Schema mise à disposition par Mongoose qui permet de créer un schéma de données pour notre base de données MongoDB.. 
+ * Pas besoin de mettre un champ pour l'Id puisqu'il est automatiquement généré par Mongoose ;
+ */
 const sauceSchema = mongoose.Schema({
   userId: { type: String, required: true },
   name: { type: String, required: true },
