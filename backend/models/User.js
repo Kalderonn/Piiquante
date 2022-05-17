@@ -15,7 +15,10 @@ const userSchema = mongoose.Schema({
   password: { type: String, required: true }
 });
 
-// Application du plugin "mongoose-unique-validator" sur notre userSchema
+/**
+ * Application du plugin "mongoose-unique-validator" sur notre userSchema
+ * s'assurera que deux utilisateurs ne puissent partager la même adresse e-mail.
+ */
 userSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model('User', userSchema);

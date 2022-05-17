@@ -32,7 +32,7 @@ app.use(helmet({
 }));
 
 /**
- * middleware mis à disposition par le framework Express pour gérer la requête POST venant du front et permettre d'extraire le corps JSON
+ * middleware mis à disposition par le framework Express pour gérer les requetes venant du front et permettre d'extraire le corps JSON
  * Avec ceci, Express prend toutes les requêtes qui ont comme Content-Type  application/json  et met à disposition leur  body  directement sur l'objet req
  */
 app.use(express.json());

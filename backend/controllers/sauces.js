@@ -4,7 +4,6 @@ const fs = require("fs");
 
 /**
  * créez une instance de votre modèle Sauce en lui passant un objet JavaScript contenant toutes les informations requises du corps de requête analysé
- * (en ayant supprimé en amont le faux_id envoyé par le front-end).
  * Pour ajouter un fichier à la requête, le front-end doit envoyer les données de la requête sous la forme form-data, et non sous forme de JSON.
  * Le corps de la requête contient une chaîne sauce , qui est simplement un objet Sauce converti en chaîne.
  * Nous devons donc l'analyser à l'aide de JSON.parse() pour obtenir un objet utilisable.
@@ -12,6 +11,9 @@ const fs = require("fs");
  * Nous utilisons req.protocol pour obtenir le premier segment (dans notre cas 'http' ).
  * Nous ajoutons '://' , puis utilisons req.get('host') pour résoudre l'hôte du serveur (ici, 'localhost:3000' ).
  * Nous ajoutons finalement '/images/' et le nom de fichier pour compléter notre URL.
+ * La méthode save() renvoie une Promise.
+ * Ainsi, dans notre bloc then() ,nous renverrons une réponse de réussite avec un code 201 de réussite.
+ * Dans notre bloc catch(),nous renverrons une réponse avec l'erreur générée par Mongoose ainsi qu'un code d'erreur 400.
  */
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
@@ -21,11 +23,6 @@ exports.createSauce = (req, res, next) => {
       req.file.filename
     }`,
   });
-  /**
-   * La méthode save() renvoie une Promise.
-   * Ainsi, dans notre bloc then() ,nous renverrons une réponse de réussite avec un code 201 de réussite.
-   * Dans notre bloc catch(),nous renverrons une réponse avec l'erreur générée par Mongoose ainsi qu'un code d'erreur 400.
-   */
   sauce
     .save()
     .then(() => res.status(201).json({ message: "Sauce enregistrée !" }))
@@ -36,6 +33,10 @@ exports.createSauce = (req, res, next) => {
  * on crée un objet sauceObject qui regarde si req.file existe ou non.
  * S'il existe, on traite la nouvelle image ; s'il n'existe pas, on traite simplement l'objet entrant.
  * On crée ensuite une instance Sauce à partir de sauceObject , puis on effectue la modification.
+ * 
+ * nous exploitons la méthode updateOne() dans notre modèle Sauce .
+ * Cela nous permet de mettre à jour la Sauce qui correspond à l'objet que nous passons comme premier argument.
+ * Nous utilisons aussi le paramètre id passé dans la demande, et le remplaçons par le Sauce passé comme second argument.
  */
 exports.modifySauce = (req, res, next) => {
   const sauceObject = req.file
@@ -46,12 +47,6 @@ exports.modifySauce = (req, res, next) => {
         }`,
       }
     : { ...req.body };
-
-  /**
-   * nous exploitons la méthode updateOne() dans notre modèle Sauce .
-   * Cela nous permet de mettre à jour la Sauce qui correspond à l'objet que nous passons comme premier argument.
-   * Nous utilisons aussi le paramètre id passé dans la demande, et le remplaçons par le Sauce passé comme second argument.
-   */
   Sauce.updateOne(
     { _id: req.params.id },
     { ...sauceObject, _id: req.params.id }
@@ -89,8 +84,6 @@ exports.deleteSauce = (req, res, next) => {
 };
 
 /**
- * nous utilisons la méthode get() pour répondre uniquement aux demandes GET à cet endpoint ;
- * nous utilisons deux-points : en face du segment dynamique de la route pour la rendre accessible en tant que paramètre ;
  * nous utilisons ensuite la méthode findOne() dans notre modèle Sauce pour trouver le Sauce unique ayant le même _id que le paramètre de la requête ;
  * ce Sauce est ensuite retourné dans une Promise et envoyé au front-end ;
  * si aucun Sauce n'est trouvé ou si une erreur se produit, nous envoyons une erreur 404 au front-end, avec l'erreur générée.
@@ -134,10 +127,6 @@ exports.likeSauce = (req, res, next) => {
         sauce.usersDisliked.remove(userId);
         sauce.dislikes -= 1;
       }
-      console.log(req.body);
-      console.log(`userdislike: ${sauce.usersDisliked}`);
-      console.log(`userlike: ${sauce.usersLiked}`);
-
       sauce
         .save()
         .then(() => {

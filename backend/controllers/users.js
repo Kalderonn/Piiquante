@@ -1,7 +1,7 @@
 // importation de bcrypt pour hasher le password
 const bcrypt = require("bcrypt");
 // importation de crypto-js pour chiffrer le mail
-const cryptojs = require('crypto-js');
+const cryptojs = require("crypto-js");
 // importation de dotenv pour l'utilisation des variables d'environnements
 // const dotenv = require("dotenv").config();
 
@@ -16,10 +16,12 @@ const User = require("../models/User");
  * dans notre bloc then , nous créons un utilisateur et l'enregistrons dans la base de données
  * en renvoyant une réponse de réussite en cas de succès,
  * et des erreurs avec le code d'erreur en cas d'échec.
- */ 
+ */
 exports.signup = (req, res, next) => {
   // chiffrer l'email avant de l'envoyer dans la base BD
-  const emailCryptoJs = cryptojs.HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`).toString();
+  const emailCryptoJs = cryptojs
+    .HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`)
+    .toString();
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
@@ -31,7 +33,11 @@ exports.signup = (req, res, next) => {
       user
         .save()
         .then(() => res.status(201).json({ message: "Utilisateur créé !" }))
-        .catch((error) => res.status(400).json({ error: `L'utilisateur ${req.body.email} existe déjà, veuillez crée un nouveau compte !` }));
+        .catch((error) =>
+          res.status(400).json({
+            error: `L'utilisateur ${req.body.email} existe déjà, veuillez crée un nouveau compte !`,
+          })
+        );
     })
     .catch((error) => res.status(500).json({ error }));
 };
@@ -42,16 +48,19 @@ exports.signup = (req, res, next) => {
  * si l'e-mail correspond à un utilisateur existant, nous continuons ;
  * nous utilisons la fonction compare de bcrypt pour comparer le mot de passe entré par l'utilisateur avec le hash enregistré dans la base de données :
  * s'ils ne correspondent pas, nous renvoyons une erreur 401 Unauthorized et un message « Mot de passe incorrect ! »,
- * s'ils correspondent, les informations d'identification de notre utilisateur sont valides. Dans ce cas, nous renvoyons une réponse 200 contenant l'ID utilisateur et un token.
- * nous utilisons la fonction sign de jsonwebtoken pour encoder un nouveau token ;
+ * s'ils correspondent, les informations d'identification de notre utilisateur sont valides.
+ * Dans ce cas, nous renvoyons une réponse 200 contenant l'ID utilisateur et un token.
+ * nous utilisons la fonction sign() de jsonwebtoken pour encoder un nouveau token ;
  * ce token contient l'ID de l'utilisateur en tant que payload (les données encodées dans le token) ;
- * nous utilisons une chaîne secrète de développement temporaire RANDOM_SECRET_KEY pour encoder notre token
+ * nous utilisons JWT_KEY_TOKEN pour encoder notre token
  * nous définissons la durée de validité du token à 24 heures
  * nous renvoyons le token au front-end avec notre réponse
  */
 exports.login = (req, res, next) => {
   // chiffrer l'email de la requete
-  const emailCryptoJs = cryptojs.HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`).toString();
+  const emailCryptoJs = cryptojs
+    .HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`)
+    .toString();
   User.findOne({ email: emailCryptoJs })
     .then((user) => {
       if (!user) {
@@ -65,9 +74,13 @@ exports.login = (req, res, next) => {
           }
           res.status(200).json({
             userId: user._id,
-            token: jwt.sign({ userId: user._id }, `${process.env.JWT_KEY_TOKEN}`, {
-              expiresIn: "24h",
-            }),
+            token: jwt.sign(
+              { userId: user._id },
+              `${process.env.JWT_KEY_TOKEN}`,
+              {
+                expiresIn: "24h",
+              }
+            ),
           });
         })
         .catch((error) => res.status(500).json({ error }));
